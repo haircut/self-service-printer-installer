@@ -36,8 +36,7 @@ msg_undefined_error = ("An error occured; please contact your support team "
 
 
 global CDPATH
-CDPATH = ("/Library/UNCA/Applications/cocoaDialog.app/Contents/MacOS/"
-          "cocoaDialog")
+CDPATH = ("/Applications/cocoaDialog.app/Contents/MacOS/cocoaDialog")
 
 # Branding icon
 BRANDICON = ("/System/Library/CoreServices/Certificate Assistant.app/Contents/"
