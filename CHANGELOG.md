@@ -2,7 +2,7 @@
 
 Things may move fast!
 
-## 0.1.2 - 2017-01-27
+## [0.1.2] - 2017-01-27
 
 ### New
 - Moved the default printer driver path to a configuration variable rather than
@@ -20,3 +20,5 @@ Things may move fast!
 
 ### Changed
 - Replaced temporary rudimentary argument parsing with `argparse` implementation
+
+[0.1.2]: https://github.com/haircut/self-service-printer-installer/compare/v0.1.1...v0.1.2
