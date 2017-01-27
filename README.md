@@ -11,3 +11,8 @@ This is a preliminary version of the tool which administrators at several organi
 are testing. Things may change and break quickly!
 
 All secrets are contained with the [Wiki](https://github.com/haircut/self-service-printer-installer/wiki).
+
+## Problems and Contributing
+
+If you find an issue or area for improvement (of which there are many) please
+open an issue. Or, better yet, fix the issue and send a pull request 😝
