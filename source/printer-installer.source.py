@@ -6,8 +6,9 @@ import syslog
 import os
 import subprocess
 import json
+import argparse
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 ###############################################################################
@@ -78,34 +79,31 @@ class Logger(object):
 Logger = Logger()
 
 
-def parse_args(args):
-    """
-    Parses passed arguments and returns a their values as named variables if
-    those arguments are provided.
-    """
+def parse_args():
+    """Set up argument parser"""
+    parser = argparse.ArgumentParser(
+        description=("Maps or 'installs' a printer queue after displaying "
+                     "a list of available printer queues to the user. "
+                     "Can specify a preselected_queue as argument 4, a filter "
+                     "key as argument 5, and a filter value as arugment 6.")
+    )
+    parser.add_argument("jamf_mount", type=str, nargs='?',
+                        help="JAMF-passed target drive mount point")
+    parser.add_argument("jamf_hostname", type=str, nargs='?',
+                        help="JAMF-passed computer hostname")
+    parser.add_argument("jamf_user", type=str, nargs='?',
+                        help="JAMF-passed name of user running policy")
+    parser.add_argument("preselected_queue", type=str, nargs='?',
+                        help="DisplayName of an available queue to map "
+                             "without prompting user for selection")
+    parser.add_argument("filter_key", type=str, nargs='?',
+                        help="Field name of an attribute which you would "
+                             "like to filter the available queues base upon")
+    parser.add_argument("filter_value", type=str, nargs='?',
+                        help="Value to search the provided filter_key "
+                             "attribute for")
 
-    preselected_queue = None
-    filter_key = None
-    filter_value = None
-
-    if len(args) > 4:
-        try:
-            if args[4]:
-                preselected_queue = args[4]
-        except:
-            pass
-        try:
-            if args[5]:
-                filter_key = args[5]
-        except:
-            pass
-        try:
-            if args[6]:
-                filter_value = args[6]
-        except:
-            pass
-
-    return preselected_queue, filter_key, filter_value
+    return parser
 
 
 def show_message(message_text, heading=gui_window_title):
@@ -319,19 +317,26 @@ def add_queue(queue):
 
 
 def main():
-    preselected_queue, filter_key, filter_value = parse_args(sys.argv)
+    """Manage arguments and run workflow"""
+    # Parse command line / JAMF-passed arguments
+    parser = parse_args()
+    # parse_known_args() works around potentially empty arguments passed by
+    # a JAMF policy
+    args = parser.parse_known_args()[0]
+
     # Build list of currently mapped queues on client
     currently_mapped_queues = get_currently_mapped_queues()
     # Build list of available queues excluding currently-mapped queues
     available_queues = build_printer_queue_list(currently_mapped_queues,
-                                                filter_key, filter_value)
+                                                args.filter_key,
+                                                args.filter_value)
 
     # Determine if a pre-selected print queue was passed
 
-    if preselected_queue:
+    if args.preselected_queue:
         # Ensure pre-selected queue is actually available
-        if preselected_queue in available_queues:
-            selected_queue = preselected_queue
+        if args.preselected_queue in available_queues:
+            selected_queue = args.preselected_queue
         else:
             error_and_exit()
     else:
