@@ -43,6 +43,17 @@ def main():
 
     # Process the CSV into a dictionary
     csv_data = csv.DictReader(infile)
+
+    # Ensure required fields are present
+    required_fields = ['DisplayName', 'URI', 'Driver', 'DriverTrigger',
+                       'Location']
+    present_fields = csv_data.fieldnames
+    for required_field in required_fields:
+        if required_field not in present_fields:
+            print "Missing required CSV field: " + required_field
+            quit()
+
+    # Convert each row into a dictionary
     lines = {}
     for line in csv_data:
         if line['DisplayName'] not in exclusions:
@@ -50,11 +61,7 @@ def main():
                 opts = dict(item.split('=') for item in line['Options'].split(','))
                 line['Options'] = opts
 
-            # Save the label for, well, labeling the set. Then delete the Label
-            # attribute since we don't need it duplicated
-            label = line['Label']
-            del line['Label']
-            lines[label] = line
+            lines[line['DisplayName']] = line
 
     # Format the dictionary as JSON
     json_data = json.dumps(lines, sort_keys=False, indent=4,

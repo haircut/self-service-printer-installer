@@ -8,7 +8,7 @@ import subprocess
 import json
 import argparse
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 
 ###############################################################################
@@ -31,9 +31,15 @@ msg_undefined_error = ("An error occured; please contact your support team "
                        "for assistance.")
 
 
-###############################################################################
-# Configuration
-###############################################################################
+# TODO: Variabalize more GUI messages
+
+# Default driver path
+# Full path to the default printer driver to use when a queue definition does
+# not specify a vendor-provided driver. Typically the default value here –
+# which uses the system "Generic PostScript Printer" driver – is sufficient.
+default_driver = ("/System/Library/Frameworks/ApplicationServices.framework"
+                  "/Versions/A/Frameworks/PrintCore.framework/Versions/A/"
+                  "Resources/Generic.ppd")
 
 
 global CDPATH
@@ -189,8 +195,19 @@ def build_printer_queue_list(current_queues, filter_key, filter_value):
     """Builds a list of available print queues for GUI presentation"""
     display_list = []
     for queue, values in queue_definitions.items():
-        if not (values['DisplayName'] in current_queues or
-                    values['CUPSName'] in current_queues):
+
+        valid_queue = False
+        if not values['DisplayName'] in current_queues:
+            # If the CUPSName field is present check for its value among
+            # mapped queues
+            if 'CUPSName' in values:
+                if values['CUPSName'] not in current_queues:
+                    valid_queue = True
+            else:
+                valid_queue = True
+
+
+        if valid_queue:
             # Queue is available but not currently mapped
             if filter_key and values.get(filter_key):
                 # Filter is applied, and the passed key exists in the queue
@@ -275,9 +292,7 @@ def add_queue(queue):
     else:
         Logger.log(q['DisplayName'] + " uses a generic driver")
         # Specify the path to the default postscript drivers
-        q_driver = ("/System/Library/Frameworks/ApplicationServices.framework"
-                    "/Versions/A/Frameworks/PrintCore.framework/Versions/A/"
-                    "Resources/Generic.ppd")
+        q_driver = default_driver
 
     # Common command
     cmd = ['/usr/sbin/lpadmin',
