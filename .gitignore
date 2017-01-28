@@ -1,1 +1,8 @@
+# Thanks Apple
 .DS_Store
+
+# Any generated printer-installer.py
+output/printer-installer.py
+
+# Any generated printer-queues.json
+output/printer-queues.json
