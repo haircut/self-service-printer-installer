@@ -2,15 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import csv
-import sys
 import json
 import argparse
 
-# TODO: Variabalize the paths here
 cfg = json.load(open('config.json', 'r'))
-output_json_file = open('output/printer-queues.json', 'w+')
-input_python_template = open('source/printer-installer.source.py', 'r')
-output_script = open('output/printer-installer.py', 'w+')
+output_json_file = open(cfg["generator"]["output_json_file"], 'w+')
+input_python_template = open(cfg["generator"]["input_python_template"], 'r')
+output_script = open(cfg["generator"]["output_script"], 'w+')
 
 def build_argparser():
     """Creates the argument parser"""

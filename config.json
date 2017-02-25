@@ -1,8 +1,13 @@
 {
   "default_driver": "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/Resources/Generic.ppd",
   "cocoaDialog": {
-    "path": "/Library/UNCA/Applications/cocoaDialog.app/Contents/MacOS/cocoaDialog",
+    "path": "/Applications/cocoaDialog.app/Contents/MacOS/cocoaDialog",
     "install_trigger": "InstallcocoaDialog"
+  },
+  "generator": {
+      "input_python_template": "source/printer-installer.source.py",
+      "output_json_file": "output/printer-queues.json",
+      "output_script": "output/printer-installer.py"
   },
   "gui": {
     "window_title": "Printer Installer",
