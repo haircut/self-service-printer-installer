@@ -312,6 +312,8 @@ def main():
         if args.preselected_queue in available_queues:
             selected_queue = args.preselected_queue
         else:
+            show_message(("{config[gui][messages][error_preselected_queue]}")
+                          % args.preselected_queue)
             error_and_exit()
     else:
         # Make sure cocoaDialog is installed

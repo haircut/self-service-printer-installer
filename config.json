@@ -13,7 +13,8 @@
       "error_undefined": "An error occured; please contact your support team for assistance.",
       "error_no_queues_available": "All available printer queues are already installed on your Mac. Please contact your support team if you need further assistance.",
       "error_driver_failure": "A driver is required for full control of this printer, but an error occurred when attempting to install the software. Please contact your support team for assistance.",
-      "error_unable_map_queue": "There was a problem mapping the printer queue - please try again. If the problem persists, contact your support team for further assistance."
+      "error_unable_map_queue": "There was a problem mapping the printer queue - please try again. If the problem persists, contact your support team for further assistance.",
+      "error_preselected_queue": "The printer queue '%s' is already configured on your Mac."
     }
   }
 }
