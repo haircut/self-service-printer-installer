@@ -2,6 +2,11 @@
 
 Things may move fast!
 
+## [0.1.5] - 2017-02-25
+
+### New
+- Moved all configuration to JSON config file. See [Configuration](https://github.com/haircut/self-service-printer-installer/wiki/Configuration) documentation.
+
 ## [0.1.2] - 2017-01-27
 
 ### New
@@ -22,3 +27,4 @@ Things may move fast!
 - Replaced temporary rudimentary argument parsing with `argparse` implementation
 
 [0.1.2]: https://github.com/haircut/self-service-printer-installer/compare/v0.1.1...v0.1.2
+[0.1.5]: https://github.com/haircut/self-service-printer-installer/compare/v0.1.2...v0.1.5

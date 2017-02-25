@@ -13,7 +13,7 @@ import subprocess
 import json
 import argparse
 
-__version__ = "0.1.2"
+__version__ = "0.1.5"
 
 BRANDICON = "{config[gui][brand_icon]}" # pylint: disable=line-too-long
 PRINTERICON = "{config[gui][printer_icon]}" # pylint: disable=line-too-long
@@ -202,7 +202,7 @@ def prompt_queue(list_of_queues):
                                      '--float', '--icon', 'gear',
                                      '--title', 'Select Print Queue',
                                      '--text', ('Choose a print queue to '
-                                     'add to your computer:'),
+                                                'add to your computer:'),
                                      '--button1', 'Add',
                                      '--button2', 'Cancel',
                                      '--items'] + list_of_queues,
