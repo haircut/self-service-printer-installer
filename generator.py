@@ -7,7 +7,7 @@ import json
 import argparse
 
 # TODO: Variabalize the paths here
-
+cfg = json.load(open('config.json', 'r'))
 output_json_file = open('output/printer-queues.json', 'w+')
 input_python_template = open('source/printer-installer.source.py', 'r')
 output_script = open('output/printer-installer.py', 'w+')
@@ -73,7 +73,7 @@ def main():
 
     # Inject the JSON into the Python template
     template = input_python_template.read()
-    output_script.write(template.format(placeholder=json_data))
+    output_script.write(template.format(queues=json_data, config=cfg))
     output_script.close()
 
     print "Done."

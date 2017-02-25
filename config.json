@@ -1,0 +1,19 @@
+{
+  "default_driver": "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/Resources/Generic.ppd",
+  "cocoaDialog": {
+    "path": "/Library/UNCA/Applications/cocoaDialog.app/Contents/MacOS/cocoaDialog",
+    "install_trigger": "InstallcocoaDialog"
+  },
+  "gui": {
+    "window_title": "Printer Installer",
+    "printer_icon": "/System/Library/CoreServices/AddPrinter.app/Contents/Resources/Printer.icns",
+    "brand_icon": "/System/Library/CoreServices/Certificate Assistant.app/Contents/Resources/AppIcon.icns",
+    "messages": {
+      "success_queue_added": "The printer queue '%s' was successfully added. You should now be able to send jobs to this printer.",
+      "error_undefined": "An error occured; please contact your support team for assistance.",
+      "error_no_queues_available": "All available printer queues are already installed on your Mac. Please contact your support team if you need further assistance.",
+      "error_driver_failure": "A driver is required for full control of this printer, but an error occurred when attempting to install the software. Please contact your support team for assistance.",
+      "error_unable_map_queue": "There was a problem mapping the printer queue - please try again. If the problem persists, contact your support team for further assistance."
+    }
+  }
+}

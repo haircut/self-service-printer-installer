@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+self-service-printer-installer
+
+See the wiki! https://github.com/haircut/self-service-printer-installer/wiki
+"""
 
 import sys
 import syslog
@@ -10,51 +15,12 @@ import argparse
 
 __version__ = "0.1.2"
 
-
-###############################################################################
-# Configuration
-###############################################################################
-
-
-# cocoaDialog Trigger
-# A custom trigger used to install cocoaDialog via JAMF policy if not found
-# on the client system. See docs for "Resolving cocoaDialog Dependency"
-cocoaDialog_trigger = "InstallcocoaDialog"
-
-# GUI - Window Titles
-# The title for all GUI windows
-gui_window_title = "Printer Installer"
-
-# GUI - Undefined error message
-# Shown when the installation process fails for unknown reasons
-msg_undefined_error = ("An error occured; please contact your support team "
-                       "for assistance.")
-
-
-# TODO: Variabalize more GUI messages
-
-# Default driver path
-# Full path to the default printer driver to use when a queue definition does
-# not specify a vendor-provided driver. Typically the default value here –
-# which uses the system "Generic PostScript Printer" driver – is sufficient.
-default_driver = ("/System/Library/Frameworks/ApplicationServices.framework"
-                  "/Versions/A/Frameworks/PrintCore.framework/Versions/A/"
-                  "Resources/Generic.ppd")
-
-
-global CDPATH
-CDPATH = ("/Applications/cocoaDialog.app/Contents/MacOS/cocoaDialog")
-
-# Branding icon
-BRANDICON = ("/System/Library/CoreServices/Certificate Assistant.app/Contents/"
-             "Resources/AppIcon.icns")
-# Printer icon
-PRINTERICON = ("System/Library/CoreServices/AddPrinter.app/Contents/Resources/"
-               "Printer.icns")
+BRANDICON = "{config[gui][brand_icon]}" # pylint: disable=line-too-long
+PRINTERICON = "{config[gui][printer_icon]}" # pylint: disable=line-too-long
 
 # Path to JAMF binary
-global JAMF
 JAMF = "/usr/local/bin/jamf"
+CDPATH = "{config[cocoaDialog][path]}" # pylint: disable=line-too-long
 
 
 ###############################################################################
@@ -63,7 +29,7 @@ JAMF = "/usr/local/bin/jamf"
 
 json_definitions = \
 """
-{placeholder}
+{queues}
 """
 
 queue_definitions = json.loads(json_definitions)
@@ -75,6 +41,7 @@ queue_definitions = json.loads(json_definitions)
 
 class Logger(object):
     """Super simple logging class"""
+    @classmethod
     def log(self, message, log_level=syslog.LOG_ALERT):
         """Log to the syslog and stdout"""
         syslog.syslog(log_level, "PRINTMAPPER: " + message)
@@ -112,11 +79,11 @@ def parse_args():
     return parser
 
 
-def show_message(message_text, heading=gui_window_title):
+def show_message(message_text, heading="{config[gui][window_title]}"):
     """Displays a message to the user via cocoaDialog"""
     showit = subprocess.Popen([CDPATH,
                                'ok-msgbox',
-                               '--title', gui_window_title,
+                               '--title', "{config[gui][window_title]}",
                                '--text', heading,
                                '--informative-text', message_text,
                                '--icon-file', BRANDICON,
@@ -131,18 +98,18 @@ def error_and_exit(no_cocoaDialog=False):
     the program.
     """
     if not no_cocoaDialog:
-        show_message(msg_undefined_error, "Error")
+        show_message("{config[gui][messages][error_undefined]}", "Error") # pylint: disable=line-too-long
     Logger.log("An error occurred which requires exiting this program.")
-    exit()
+    sys.exit(1)
 
 
 def run_jamf_policy(trigger, quiet=False):
     """Runs a jamf policy given the provided trigger"""
     if not quiet:
         progress_bar = subprocess.Popen([CDPATH, 'progressbar',
-                                        '--title', 'Please wait...',
-                                        '--text', 'Installing software...',
-                                        '--float', '--indeterminate'],
+                                         '--title', 'Please wait...',
+                                         '--text', 'Installing software...',
+                                         '--float', '--indeterminate'],
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE)
 
@@ -169,7 +136,7 @@ def check_for_cocoadialog():
     there, install it via the specified policy trigger.
     """
     if not os.path.exists(CDPATH):
-        return run_jamf_policy(cocoaDialog_trigger, True)
+        return run_jamf_policy("{config[cocoaDialog][install_trigger]}", True)
     else:
         return True
 
@@ -224,9 +191,7 @@ def build_printer_queue_list(current_queues, filter_key, filter_value):
         return sorted(display_list)
     else:
         Logger.log("No currently-unmapped queues are available")
-        show_message("All available print queues are already mapped to this "
-                     "computer. Please contact ITS if you need further "
-                     "assistance.")
+        show_message("{config[gui][messages][error_no_queues_available]}") # pylint: disable=line-too-long
         quit()
 
 
@@ -234,13 +199,13 @@ def prompt_queue(list_of_queues):
     """Prompts the user to select a queue name"""
     Logger.log('Prompting user to select desired queue')
     queue_dialog = subprocess.Popen([CDPATH, 'dropdown', '--string-output',
-                                    '--float', '--icon', 'gear',
-                                    '--title', 'Select Print Queue',
-                                    '--text', ('Choose a print queue to '
-                                    'add to your computer:'),
-                                    '--button1', 'Add',
-                                    '--button2', 'Cancel',
-                                    '--items'] + list_of_queues,
+                                     '--float', '--icon', 'gear',
+                                     '--title', 'Select Print Queue',
+                                     '--text', ('Choose a print queue to '
+                                     'add to your computer:'),
+                                     '--button1', 'Add',
+                                     '--button2', 'Cancel',
+                                     '--items'] + list_of_queues,
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
     prompt_return, error = queue_dialog.communicate()
@@ -269,10 +234,7 @@ def search_for_driver(driver, trigger):
     if not os.path.exists(driver):
         Logger.log("The driver was not found at " + driver)
         if not install_drivers(trigger):
-            show_message("A driver is required for full control of this "
-                         "printer, but an error occurred when attempting to "
-                         "install the software. Please contact ITS for "
-                         "assistance.")
+            show_message("{config[gui][messages][error_driver_failure]}") # pylint: disable=line-too-long
             Logger.log('Quitting program')
             quit()
 
@@ -292,7 +254,7 @@ def add_queue(queue):
     else:
         Logger.log(q['DisplayName'] + " uses a generic driver")
         # Specify the path to the default postscript drivers
-        q_driver = default_driver
+        q_driver = "{config[default_driver]}" # pylint: disable=line-too-long
 
     # Common command
     cmd = ['/usr/sbin/lpadmin',
@@ -318,16 +280,13 @@ def add_queue(queue):
         map_return, error = mapq.communicate()
         Logger.log("Excuting command: " + ' '.join(cmd))
         Logger.log("Queue " + q['DisplayName'] + " successfully mapped")
-        show_message("The printer queue '" + q['DisplayName'] + "' was "
-                     "successfully added. You should now be able to send "
-                     "jobs to this printer.", "Success!")
+        show_message(("{config[gui][messages][success_queue_added]}" # pylint: disable=line-too-long
+                      % q['DisplayName']), "Success!")
         quit()
     except subprocess.CalledProcessError as e:
         Logger.log('There was a problem mapping the queue!')
         Logger.log('Attempted command: ' + ' '.join(cmd))
-        show_message("There was a problem mapping the printer queue – please "
-                     "try again. If the problem persists, contact ITS for "
-                     "further assistance.")
+        show_message("{config[gui][messages][error_unable_map_queue]}")# pylint: disable=line-too-long
         quit()
 
 
