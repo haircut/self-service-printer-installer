@@ -1,4 +1,4 @@
 DisplayName,URI,Driver,DriverTrigger,Location,Options
-FirstPrinter,smb://print.server.tld/FirstPrinter,,,Brown Hall,"APOptionalDuplexer=True,printer-is-shared=false"
-MFD,smb://print.server.tld/MFD,/Library/Printers/PPDs/Contents/Resources/RICOH Aficio MP C3002.gz,InstallRicohDrivers,Brown Hall,"ColorModel=Gray,Finisher=FinKINGB,ImageableArea=Letter,PageRegion=Letter,PageSize=Letter,PaperDimension=Letter,printer-is-shared=false"
-Another,smb://print.server.tld/Another,,,Blue Hall,"APOptionalDuplexer=True,printer-is-shared=false"
+FirstPrinter,smb://print.server.tld/FirstPrinter,,,Brown Hall,"APOptionalDuplexer=True printer-is-shared=false auth-info-required=negotiate"
+MFD,smb://print.server.tld/MFD,/Library/Printers/PPDs/Contents/Resources/RICOH Aficio MP C3002.gz,InstallRicohDrivers,Brown Hall,"ColorModel=Gray Finisher=FinKINGB ImageableArea=Letter PageRegion=Letter PageSize=Letter PaperDimension=Letter printer-is-shared=false auth-info-required=negotiate"
+Another,smb://print.server.tld/Another,,,Blue Hall,"APOptionalDuplexer=True printer-is-shared=false auth-info-required=negotiate"

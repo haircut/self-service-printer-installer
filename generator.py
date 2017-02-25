@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+Self Service Printer Installer generator script
+
+Assembles all the source files into a usable script
+"""
 
 import csv
 import json
 import argparse
-
-cfg = json.load(open('config.json', 'r'))
-output_json_file = open(cfg["generator"]["output_json_file"], 'w+')
-input_python_template = open(cfg["generator"]["input_python_template"], 'r')
-output_script = open(cfg["generator"]["output_script"], 'w+')
 
 def build_argparser():
     """Creates the argument parser"""
@@ -17,7 +17,9 @@ def build_argparser():
                      "list to a JSON document, then injects the JSON into "
                      "the Python template.")
     )
-
+    parser.add_argument("config",
+                        type=argparse.FileType("r"),
+                        help="Path to JSON configuration file")
     parser.add_argument("infile",
                         type=argparse.FileType("r"),
                         help="Path to input CSV file of printer queues")
@@ -27,12 +29,21 @@ def build_argparser():
                         help="Path to optional exclusions file")
 
     args = parser.parse_args()
-    return args.infile, args.exclude
+    return args.config, args.infile, args.exclude
 
 
 def main():
+    """Main program"""
     # Grab the passed arguments
-    infile, exclude = build_argparser()
+    config, infile, exclude = build_argparser()
+
+    # Load the config
+    cfg = json.loads(config.read())
+
+    # Open file handles for needed i/o files
+    output_json_file = open(cfg["generator"]["output_json_file"], 'w+')
+    input_python_template = open(cfg["generator"]["input_python_template"], 'r')
+    output_script = open(cfg["generator"]["output_script"], 'w+')
 
     # Split the exclusions, if they exist
     exclusions = []
@@ -56,7 +67,7 @@ def main():
     for line in csv_data:
         if line['DisplayName'] not in exclusions:
             if line['Options']:
-                opts = dict(item.split('=') for item in line['Options'].split(','))
+                opts = dict(item.split('=') for item in line['Options'].split(' '))
                 line['Options'] = opts
 
             lines[line['DisplayName']] = line
