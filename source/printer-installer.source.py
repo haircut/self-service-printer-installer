@@ -234,6 +234,7 @@ def search_for_driver(driver, trigger):
 
 
 def add_queue(queue):
+    """Add the printer queue to the computer"""
     # Reference the queue dictionary by name
     q = QUEUE_DEFINITIONS[queue]
 
