@@ -162,23 +162,23 @@ def get_currently_mapped_queues():
 def build_printer_queue_list(current_queues, filter_key, filter_value):
     """Builds a list of available print queues for GUI presentation"""
     display_list = []
-    for queue, values in QUEUE_DEFINITIONS.items():
+    for queue in QUEUE_DEFINITIONS.values():
 
         # Skip if the printer is already installed
-        if values.get('DisplayName') in current_queues:
+        if queue.get('DisplayName') in current_queues:
             continue
 
         # Skip if the CUPSName field is present and is already installed
-        if values.get('CUPSName') in current_queues:
+        if queue.get('CUPSName') in current_queues:
             continue
 
         # Skip if a filter is enabled and it doesn't match
-        if filter_key and values.get(filter_key):
-            if filter_value not in values.get(filter_key):
+        if filter_key and queue.get(filter_key):
+            if filter_value not in queue.get(filter_key):
                 continue
 
         # Add the printer to the list of available printers
-        display_list.append(values.get('DisplayName'))
+        display_list.append(queue.get('DisplayName'))
 
 
     if len(display_list) >= 1:
