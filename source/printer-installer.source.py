@@ -180,13 +180,12 @@ def build_printer_queue_list(current_queues, filter_key, filter_value):
         # Add the printer to the list of available printers
         display_list.append(queue.get('DisplayName'))
 
-
-    if len(display_list) >= 1:
-        return sorted(display_list)
-    else:
+    if not display_list:
         Logger.log("No currently-unmapped queues are available")
         show_message("{config[gui][messages][error_no_queues_available]}") # pylint: disable=line-too-long
         quit()
+
+    return sorted(display_list)
 
 
 def prompt_queue(list_of_queues):
