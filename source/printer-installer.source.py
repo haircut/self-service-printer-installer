@@ -27,12 +27,12 @@ CDPATH = "{config[cocoaDialog][path]}" # pylint: disable=line-too-long
 # Queue Definitions
 ###############################################################################
 
-json_definitions = \
+JSON_DEFINITIONS = \
 """
 {queues}
 """
 
-queue_definitions = json.loads(json_definitions)
+QUEUE_DEFINITIONS = json.loads(JSON_DEFINITIONS)
 
 ###############################################################################
 # Program Logic - Here be dragons!
@@ -42,7 +42,7 @@ queue_definitions = json.loads(json_definitions)
 class Logger(object):
     """Super simple logging class"""
     @classmethod
-    def log(self, message, log_level=syslog.LOG_ALERT):
+    def log(cls, message, log_level=syslog.LOG_ALERT):
         """Log to the syslog and stdout"""
         syslog.syslog(log_level, "PRINTMAPPER: " + message)
         print message
@@ -161,7 +161,7 @@ def get_currently_mapped_queues():
 def build_printer_queue_list(current_queues, filter_key, filter_value):
     """Builds a list of available print queues for GUI presentation"""
     display_list = []
-    for queue, values in queue_definitions.items():
+    for queue, values in QUEUE_DEFINITIONS.items():
 
         valid_queue = False
         if not values['DisplayName'] in current_queues:
@@ -241,7 +241,7 @@ def search_for_driver(driver, trigger):
 
 def add_queue(queue):
     # Reference the queue dictionary by name
-    q = queue_definitions[queue]
+    q = QUEUE_DEFINITIONS[queue]
 
     # Determine whether we need to handle custom drivers
     # By convention, a driver path only appears in the queue dict if a custom
@@ -286,7 +286,7 @@ def add_queue(queue):
     except subprocess.CalledProcessError as e:
         Logger.log('There was a problem mapping the queue!')
         Logger.log('Attempted command: ' + ' '.join(cmd))
-        show_message("{config[gui][messages][error_unable_map_queue]}")# pylint: disable=line-too-long
+        show_message("{config[gui][messages][error_unable_map_queue]}") # pylint: disable=line-too-long
         quit()
 
 
@@ -313,7 +313,7 @@ def main():
             selected_queue = args.preselected_queue
         else:
             show_message(("{config[gui][messages][error_preselected_queue]}")
-                          % args.preselected_queue)
+                         % args.preselected_queue)
             error_and_exit()
     else:
         # Make sure cocoaDialog is installed
