@@ -49,7 +49,7 @@ class Logger(object):
 
 
 # Initialize Logger
-Logger = Logger()
+Logger()
 
 
 def parse_args():
@@ -92,6 +92,7 @@ def show_message(message_text, heading="{config[gui][window_title]}"):
     return True
 
 
+# pylint: disable=C0103
 def error_and_exit(no_cocoaDialog=False):
     """
     Display a generic error message (if cocoaDialog is installed) then quit
@@ -137,8 +138,8 @@ def check_for_cocoadialog():
     """
     if not os.path.exists(CDPATH):
         return run_jamf_policy("{config[cocoaDialog][install_trigger]}", True)
-    else:
-        return True
+
+    return True
 
 
 def get_currently_mapped_queues():
@@ -146,7 +147,7 @@ def get_currently_mapped_queues():
     try:
         Logger.log('Gathering list of currently mappped queues')
         lpstat_result = subprocess.check_output(['/usr/bin/lpstat', '-p'])
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         Logger.log('No current print queues found')
         lpstat_result = None
 
@@ -209,13 +210,13 @@ def prompt_queue(list_of_queues):
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
     prompt_return, error = queue_dialog.communicate()
-    if not prompt_return == "Cancel\n":
+    if prompt_return != "Cancel\n":
         selected_queue = prompt_return.splitlines()[1]
         Logger.log('User selected queue ' + selected_queue)
         return selected_queue
-    else:
-        Logger.log('User canceled queue selection')
-        return False
+
+    Logger.log('User canceled queue selection')
+    return False
 
 
 def install_drivers(trigger):
@@ -224,8 +225,8 @@ def install_drivers(trigger):
 
     if not run_jamf_policy(trigger):
         return False
-    else:
-        return True
+
+    return True
 
 
 def search_for_driver(driver, trigger):
@@ -283,7 +284,7 @@ def add_queue(queue):
         show_message(("{config[gui][messages][success_queue_added]}" # pylint: disable=line-too-long
                       % q['DisplayName']), "Success!")
         quit()
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         Logger.log('There was a problem mapping the queue!')
         Logger.log('Attempted command: ' + ' '.join(cmd))
         show_message("{config[gui][messages][error_unable_map_queue]}") # pylint: disable=line-too-long
