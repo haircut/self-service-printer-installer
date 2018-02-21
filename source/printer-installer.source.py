@@ -18,7 +18,7 @@ __version__ = "0.1.5"
 BRANDICON = "{config[gui][brand_icon]}" # pylint: disable=line-too-long
 PRINTERICON = "{config[gui][printer_icon]}" # pylint: disable=line-too-long
 
-# Path to JAMF binary
+# Path to Jamf binary
 JAMF = "/usr/local/bin/jamf"
 CDPATH = "{config[cocoaDialog][path]}" # pylint: disable=line-too-long
 
@@ -61,11 +61,11 @@ def parse_args():
                      "key as argument 5, and a filter value as arugment 6.")
     )
     parser.add_argument("jamf_mount", type=str, nargs='?',
-                        help="JAMF-passed target drive mount point")
+                        help="Jamf-passed target drive mount point")
     parser.add_argument("jamf_hostname", type=str, nargs='?',
-                        help="JAMF-passed computer hostname")
+                        help="Jamf-passed computer hostname")
     parser.add_argument("jamf_user", type=str, nargs='?',
-                        help="JAMF-passed name of user running policy")
+                        help="Jamf-passed name of user running policy")
     parser.add_argument("preselected_queue", type=str, nargs='?',
                         help="DisplayName of an available queue to map "
                              "without prompting user for selection")
@@ -124,12 +124,13 @@ def run_jamf_policy(trigger, quiet=False):
         progress_bar.terminate()
 
     if "No policies were found for the" in policy_return:
-        Logger.log("Unable to run JAMF policy via trigger " + trigger)
+        Logger.log("Unable to run Jamf policy via trigger " + trigger)
         return False
     elif "Submitting log to" in policy_return:
-        Logger.log("Successfully ran JAMF policy via trigger " + trigger)
+        Logger.log("Successfully ran Jamf policy via trigger " + trigger)
         return True
 
+    return False
 
 def check_for_cocoadialog():
     """
@@ -212,7 +213,7 @@ def prompt_queue(list_of_queues):
 
 
 def install_drivers(trigger):
-    """Installs required drivers via JAMF policy given a trigger value"""
+    """Installs required drivers via Jamf policy given a trigger value"""
     Logger.log("Attempting to install drivers via policy trigger " + trigger)
 
     if not run_jamf_policy(trigger):
@@ -223,7 +224,7 @@ def install_drivers(trigger):
 
 def search_for_driver(driver, trigger):
     """Searches the system for the appropriate driver and if not found,
-       attempts to install it via JAMF policy"""
+       attempts to install it via Jamf policy"""
     if not os.path.exists(driver):
         Logger.log("The driver was not found at " + driver)
         if not install_drivers(trigger):
@@ -285,10 +286,10 @@ def add_queue(queue):
 
 def main():
     """Manage arguments and run workflow"""
-    # Parse command line / JAMF-passed arguments
+    # Parse command line / Jamf-passed arguments
     parser = parse_args()
     # parse_known_args() works around potentially empty arguments passed by
-    # a JAMF policy
+    # a Jamf policy
     args = parser.parse_known_args()[0]
 
     # Build list of currently mapped queues on client
