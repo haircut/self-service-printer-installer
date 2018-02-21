@@ -164,29 +164,22 @@ def build_printer_queue_list(current_queues, filter_key, filter_value):
     display_list = []
     for queue, values in QUEUE_DEFINITIONS.items():
 
-        valid_queue = False
-        if not values['DisplayName'] in current_queues:
-            # If the CUPSName field is present check for its value among
-            # mapped queues
-            if 'CUPSName' in values:
-                if values['CUPSName'] not in current_queues:
-                    valid_queue = True
-            else:
-                valid_queue = True
+        # Skip if the printer is already installed
+        if values.get('DisplayName') in current_queues:
+            continue
 
+        # Skip if the CUPSName field is present and is already installed
+        if values.get('CUPSName') in current_queues:
+            continue
 
-        if valid_queue:
-            # Queue is available but not currently mapped
-            if filter_key and values.get(filter_key):
-                # Filter is applied, and the passed key exists in the queue
-                # definitions, so check for match condition
-                if filter_value in values[filter_key]:
-                    # Match condition met, so add queue to list
-                    display_list.append(values['DisplayName'])
-                # Implicit else of condition not met, do not add queue to list
-            elif not filter_key:
-                # No filter applied, so just add the queue to the list
-                display_list.append(values['DisplayName'])
+        # Skip if a filter is enabled and it doesn't match
+        if filter_key and values.get(filter_key):
+            if filter_value not in values.get(filter_key):
+                continue
+
+        # Add the printer to the list of available printers
+        display_list.append(values.get('DisplayName'))
+
 
     if len(display_list) >= 1:
         return sorted(display_list)
