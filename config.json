@@ -21,5 +21,16 @@
       "error_unable_map_queue": "There was a problem mapping the printer queue - please try again. If the problem persists, contact your support team for further assistance.",
       "error_preselected_queue": "The printer queue '%s' is already configured on your Mac."
     }
+  },
+  "ldap": {
+     "group": {
+         "name_format": "PrinterGroup-*"
+     },
+     "messages": {
+         "error": "Unable to contact LDAP server. Please contact your support team for further assistance.",
+         "prompt_creds": "Please enter your Active Directory password."
+     },
+     "search_base": "dc=ad,dc=domain,dc=com",
+     "server": "ldap://ad.domain.com"
   }
 }

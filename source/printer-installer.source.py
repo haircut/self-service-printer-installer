@@ -13,7 +13,7 @@ import subprocess
 import json
 import argparse
 
-__version__ = "0.1.5"
+__version__ = "0.2.0"
 
 BRANDICON = "{config[gui][brand_icon]}" # pylint: disable=line-too-long
 PRINTERICON = "{config[gui][printer_icon]}" # pylint: disable=line-too-long
@@ -160,7 +160,7 @@ def get_currently_mapped_queues():
     return current_queues
 
 
-def build_printer_queue_list(current_queues, filter_key, filter_value):
+def build_printer_queue_list(current_queues, filter_key, filter_value, user_groups):
     """Builds a list of available print queues for GUI presentation"""
     display_list = []
     for queue in QUEUE_DEFINITIONS.values():
@@ -178,6 +178,12 @@ def build_printer_queue_list(current_queues, filter_key, filter_value):
             if filter_value not in queue.get(filter_key):
                 continue
 
+        # Skip if a filter group is configured for this printer and the user is
+        # not a member of the group
+        if queue.get('ADFilterGroup'):
+            if queue.get('ADFilterGroup') not in user_groups:
+                continue
+
         # Add the printer to the list of available printers
         display_list.append(queue.get('DisplayName'))
 
@@ -187,6 +193,65 @@ def build_printer_queue_list(current_queues, filter_key, filter_value):
         quit()
 
     return sorted(display_list)
+
+
+def has_kerberos_ticket():
+    """ Returns a boolean value indicating whether a Kerberos ticket exists. """
+    return not subprocess.call(['klist', '-s'])
+
+
+def user_ldap_groups(username):
+    """ Returns a list of the groups that the user is a member of.
+        Returns False if it can't find the username or throws an exception.
+        It's up to the caller to ensure that the username they're using exists!
+    """
+    Logger.log("Generating list of user's AD groups")
+    user_groups = []
+
+    if not has_kerberos_ticket():
+        show_message("{config[ldap][messages][error]}") # pylint: disable=line-too-long
+        quit()
+
+    try:
+        dn = subprocess.check_output(['ldapsearch', '-LLL',
+                                      '-o', 'ldif-wrap=no',
+                                      '-H', '{config[ldap][server]}',
+                                      '-b', '{config[ldap][search_base]}',
+                                      '(&(objectCategory=Person)(objectClass=User)(sAMAccountName='+username+'))', # pylint: disable=line-too-long
+                                      'dn']
+                                    ).splitlines()
+    except subprocess.CalledProcessError as e:
+        if e.returncode == 254:
+            Logger.log('Encountered an authentication error while searching ldap.')
+            Logger.log('Prompting for credentials and trying again.')
+        else:
+            Logger.log('Unknown error searching ldap. (Error code: '+str(e.returncode)+')')
+
+        show_message("{config[ldap][messages][error]}") # pylint: disable=line-too-long
+        quit()
+
+    user_dn = ''
+    for attribute in dn:
+        if attribute.startswith('dn: '):
+            user_dn = attribute.split(':')[1].strip()
+
+    search_filter = '(member:1.2.840.113556.1.4.1941:='+user_dn+')'
+    if "{config[ldap][group][name_format]}" != "":
+        search_filter = '(&'+search_filter+'(cn={config[ldap][group][name_format]}))'
+
+    groups = subprocess.check_output(['ldapsearch', '-LLL',
+                                      '-o', 'ldif-wrap=no',
+                                      '-H', '{config[ldap][server]}',
+                                      '-b', '{config[ldap][search_base]}',
+                                      search_filter,
+                                      'cn']
+                                    ).splitlines()
+
+    for attribute in groups:
+        if attribute.startswith('cn: '):
+            user_groups.append(attribute.split(':')[1].strip())
+
+    return user_groups
 
 
 def prompt_queue(list_of_queues):
@@ -293,12 +358,16 @@ def main():
     # a Jamf policy
     args = parser.parse_known_args()[0]
 
+    # Build list of user's AD groups
+    user_groups = user_ldap_groups(args.jamf_user)
+
     # Build list of currently mapped queues on client
     currently_mapped_queues = get_currently_mapped_queues()
     # Build list of available queues excluding currently-mapped queues
     available_queues = build_printer_queue_list(currently_mapped_queues,
                                                 args.filter_key,
-                                                args.filter_value)
+                                                args.filter_value,
+                                                user_groups)
 
     # Determine if a pre-selected print queue was passed
 
