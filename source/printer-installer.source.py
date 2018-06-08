@@ -209,8 +209,8 @@ def user_ldap_groups(username):
     user_groups = []
 
     if not has_kerberos_ticket():
-        show_message("{config[ldap][messages][error]}") # pylint: disable=line-too-long
-        quit()
+        Logger.log("Kerberos ticket not found. No AD groups returned.")
+        return user_groups
 
     try:
         dn = subprocess.check_output(['ldapsearch', '-LLL',
@@ -223,7 +223,6 @@ def user_ldap_groups(username):
     except subprocess.CalledProcessError as e:
         if e.returncode == 254:
             Logger.log('Encountered an authentication error while searching ldap.')
-            Logger.log('Prompting for credentials and trying again.')
         else:
             Logger.log('Unknown error searching ldap. (Error code: '+str(e.returncode)+')')
 
