@@ -234,6 +234,7 @@ def user_ldap_groups(username):
     for attribute in dn:
         if attribute.startswith('dn: '):
             user_dn = attribute.split(':')[1].strip()
+            break
 
     search_filter = '(member:1.2.840.113556.1.4.1941:='+user_dn+')'
     if "{config[ldap][group][name_format]}" != "":
