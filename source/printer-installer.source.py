@@ -209,7 +209,7 @@ def user_ldap_groups(username):
     user_groups = []
 
     if not has_kerberos_ticket():
-        Logger.log("Kerberos ticket not found. No AD groups returned.")
+        Logger.log("Kerberos ticket not found. AD group filtering disabled.")
         return user_groups
 
     try:
