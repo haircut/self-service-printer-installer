@@ -27,8 +27,7 @@
          "name_format": "PrinterGroup-*"
      },
      "messages": {
-         "error": "Unable to contact LDAP server. Please contact your support team for further assistance.",
-         "prompt_creds": "Please enter your Active Directory password."
+         "error": "Unable to contact LDAP server. Please contact your support team for further assistance."
      },
      "search_base": "dc=ad,dc=domain,dc=com",
      "server": "ldap://ad.domain.com"
