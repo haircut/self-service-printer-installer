@@ -1,4 +1,10 @@
-# Self Service Printer Installer
+# ARCHIVED
+
+This tool relied on Python 2 which is no longer included with macOS.
+I'm no longer managing printers this way so I'm unmotivated to rewrite and support the tool.
+Thanks for using it over the years!
+
+## Self Service Printer Installer
 
 Present users with a GUI to install printers on their Mac via Self Service (with Magic™)
 
